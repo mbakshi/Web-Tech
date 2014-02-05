@@ -1,0 +1,103 @@
+Web-Tech
+========
+
+Codes are incomplete because they are part of academic projects
+
+<html>
+<head>
+<title>Get Weather Info</title>
+
+<style>
+
+table.t1
+{
+position:relative;
+left:425px;
+}
+table
+{
+position:relative;
+left:300px;
+}
+th,td
+{
+align: center;
+}
+
+h1.id1
+{
+position:relative;
+left:550px;
+}
+h3
+{
+position:relative;
+left:550px;
+}
+
+</style>
+</head>
+<body>
+<?php
+$loc=" ";
+$print=1;
+
+if(isset($_POST["selname"]))
+{
+	if($_POST["selname"]=='1')
+	{
+		
+		$reg="/\W/";
+		$rep="%20";
+		$new=preg_replace($reg,$rep,$_POST["city"]);
+		$url='http://where.yahooapis.com/v1/places$and(.q(\'';
+		$url.=$new;
+		$url.='\'),.type(7));start=0;count=5?appid=qUf4BAHV34G7hnSu2Gi2ln49A5GSw38D_YfqFoAHCUwzNmtlCWPJdJt8T6QKzeH_MhVb';
+
+		$xml = file_get_contents($url);
+
+		$res=0;
+		$parse = new SimpleXMLElement($xml);
+		foreach($parse as $woeid)
+		$res=$res+1;
+		if($res===0)
+		echo "<h1 class=\"id1\"> No Result Found </h1>";
+		else
+		{
+		$text="<table cellpadding=5 border=\"1\">
+				<tr>
+				<th>Weather</th>
+				<th>Temperatue</th>
+				<th>City</th>
+				<th>Region</th>
+				<th>Country</th>
+				<th>Latitude</th>
+				<th>Longitude</th>
+				<th>Link To<br/>Details</th>
+				</tr>";
+		  	foreach($parse as $woeid)
+	   		{
+	  			$id=$woeid->children();
+		  		//echo $id;
+			  	$newurl='http://weather.yahooapis.com/forecastrss?w=';
+				  $newurl.=$id;
+			  	$newurl.='&u=';
+			  	$newurl.=$opt;
+			  	$newxml = file_get_contents($newurl);
+			  	$newparse= new SimpleXMLElement($newxml);
+			  	foreach($newparse as $child)
+					{
+				  	$rand=$child->item[0]->description[0];
+				  	$rand1=$child->title[0];
+				  	$err="Error";
+				  	if(strpos($rand1,$err)==NULL)
+					  {
+
+				    	$trav++;
+				    	$str1='http';
+				    	$str2='"/>';
+				    	$pos1=strpos($rand,$str1);
+				    	$pos2=strpos($rand,$str2);
+			    		$current = $child->item[0]->xpath('yweather:condition');
+			    		if($current!=NULL)
+			      		$alttext= $current[0]['text'];
